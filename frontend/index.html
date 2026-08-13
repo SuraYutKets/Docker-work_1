@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Saver</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0;
+            color: #333;
+        }
+        .container { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 2.5rem; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            width: 100%; 
+            max-width: 450px; 
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        h2 {
+            margin-top: 0;
+            color: #2d3748;
+            font-weight: 600;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input { 
+            flex: 1;
+            padding: 12px 15px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 8px; 
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #667eea;
+        }
+        button { 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover { 
+            background: #5a67d8; 
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        ul { 
+            list-style: none; 
+            padding: 0; 
+            margin: 0; 
+            text-align: left; 
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        li { 
+            padding: 12px 15px; 
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        li:last-child { 
+            margin-bottom: 0; 
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Save a Name</h2>
+        <div class="input-group">
+            <input type="text" id="nameInput" placeholder="Enter a name..." onkeypress="handleKeyPress(event)">
+            <button onclick="saveName()">Save</button>
+        </div>
+        <ul id="nameList"></ul>
+    </div>
+
+    <script>
+        async function loadNames() {
+            try {
+                // The Nginx proxy routes /api to the backend
+                const response = await fetch('/api/names');
+                const names = await response.json();
+                const list = document.getElementById('nameList');
+                list.innerHTML = '';
+                names.forEach(n => {
+                    const li = document.createElement('li');
+                    li.textContent = n.name;
+                    list.appendChild(li);
+                });
+            } catch (err) {
+                console.error('Failed to load names', err);
+            }
+        }
+
+        async function saveName() {
+            const input = document.getElementById('nameInput');
+            const name = input.value.trim();
+            if (!name) return;
+
+            try {
+                await fetch('/api/names', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                input.value = '';
+                loadNames();
+            } catch (err) {
+                console.error('Failed to save name', err);
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                saveName();
+            }
+        }
+
+        // Load names when page starts
+        loadNames();
+    </script>
+</body>
+</html>
