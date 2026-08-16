@@ -11,7 +11,7 @@ graph TD
     User -->|HTTP :8081| Adminer[Adminer DB Manager]
 
     Nginx -->|/api/*| Backend[Node.js Backend :8080]
-    Nginx -->|| Frontend[Frontend UI :3000]
+    Nginx -->|/*| Frontend[Frontend UI :3000]
 
     Frontend -.->|API Calls| Nginx
     Backend -->|TCP :5432| DB[(PostgreSQL Database)]
