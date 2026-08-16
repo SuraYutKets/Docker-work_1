@@ -3,15 +3,27 @@
 A full-stack web application running entirely on Docker containers. This project demonstrates a multi-container architecture using Docker Compose, featuring a Frontend, a Node.js Backend, a PostgreSQL Database, and NGINX acting as a reverse proxy.
 
 ## 🏗️ Architecture
+The application is divided into 5 main services. Here is the system architecture:
 
-The application is divided into 4 main services:
+```mermaid
+graph TD
+    User([User / Browser]) -->|HTTP :80| Nginx[Nginx Reverse Proxy]
+    User -->|HTTP :8081| Adminer[Adminer DB Manager]
 
+    Nginx -->|/api/*| Backend[Node.js Backend :8080]
+    Nginx -->|/*| Frontend[Frontend UI :3000]
+
+    Frontend -.->|API Calls| Nginx
+    Backend -->|TCP :5432| DB[(PostgreSQL Database)]
+    Adminer -->|TCP :5432| DB
+```
 1. **Frontend**: A simple HTML/JS UI that allows users to save and view names.
 2. **Backend**: A Node.js + Express.js API that connects to the database.
 3. **Database**: PostgreSQL database to persist the stored names.
 4. **Nginx**: A reverse proxy that routes traffic to either the Frontend (for regular page loads) or the Backend (for `/api` requests).
+5. **Adminer**: Web-based database manager for viewing PostgreSQL data.
 
-## 🚀 Technologies Used
+## 🚀 Technologies UsedSS
 
 - **Frontend**: HTML5, CSS3, JavaScript (served via Node.js `serve`)
 - **Backend**: Node.js, Express.js
@@ -30,9 +42,6 @@ The application is divided into 4 main services:
 ```
 
 ## 🛠️ How to Run
-
-### Prerequisites
-Make sure you have [Docker](https://www.docker.com/get-started) and Docker Compose installed on your machine.
 
 ### Installation & Setup
 
@@ -58,11 +67,3 @@ To stop all running containers, execute:
 ```bash
 docker compose down
 ```
-
-## 🔌 API Endpoints
-
-- `GET /api/names`: Fetches all names stored in the database.
-- `POST /api/names`: Saves a new name. (Expects JSON body: `{ "name": "John Doe" }`)
-
-## 📝 License
-This project is open-source and available under the MIT License.
